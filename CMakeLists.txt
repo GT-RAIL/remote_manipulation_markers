@@ -8,13 +8,13 @@ project(remote_manipulation_markers)
 find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
+  geometry_msgs
   interactive_markers
   message_generation
-  move_base_msgs
-  rail_segmentation
-  rail_pick_and_place_msgs
+  rail_manipulation_msgs
   roscpp
   sensor_msgs
+  std_srvs
   visualization_msgs
 )
 
