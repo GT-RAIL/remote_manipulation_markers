@@ -1,0 +1,9 @@
+# Define the goal
+float64 depthOffset     # Grasp depth offset from given pose (along approach angle), only used in point-and-click
+---
+# Define the result
+bool executionSuccess   # True if the arm could successfully complete motion planning
+bool success            # True if the object is verified to be in the gripper after pickup
+---
+# Define a feedback message
+string message         # Feedback message

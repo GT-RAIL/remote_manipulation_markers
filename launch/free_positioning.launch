@@ -1,0 +1,16 @@
+<launch>
+  <arg name="base_link" default="base_link" />
+  <arg name="eef_link" default="eef_link" />
+  <arg name="grasp_topic" default="grasp" />
+  <arg name="run_separate_vis" default="false" />
+
+  <node pkg="remote_manipulation_markers" type="free_positioning" name="free_positioning">
+    <param name="base_link" value="$(arg base_link)" />
+    <param name="eef_link" value="$(arg eef_link)" />
+    <param name="grasp_topic" value="$(arg grasp_topic)" />
+  </node>
+
+  <node pkg="remote_manipulation_markers" type="gripper_marker_vis" name="gripper_marker_vis" if="$(arg run_separate_vis)">
+    <param name="marker_node_name" value="free_positioning" />
+  </node>
+</launch>
