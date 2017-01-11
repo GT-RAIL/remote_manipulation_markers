@@ -80,9 +80,9 @@ target_link_libraries(point_and_click
   )
 
 ## Add cmake target dependencies of the executable/library
-add_dependencies(free_positioning rail_manipulation_msgs_gencpp)
-add_dependencies(constrained_positioning rail_manipulation_msgs_gencpp)
-add_dependencies(point_and_click rail_manipulation_msgs_gencpp)
+add_dependencies(free_positioning ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
+add_dependencies(constrained_positioning ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
+add_dependencies(point_and_click ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
 
 #############
 ## Install ##
@@ -98,3 +98,8 @@ install(DIRECTORY include/${PROJECT_NAME}/
   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
   FILES_MATCHING PATTERN "*.hpp" PATTERN "*.h"
 )
+
+## Copy launch files
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  )
