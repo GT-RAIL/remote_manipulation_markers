@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package>
   <name>remote_manipulation_markers</name>
-  <version>1.0.0</version>
+  <version>1.0.1</version>
   <description>A set of interactive markers for various methods of remote teleoperation manipulation of 6-DOF robot end-effectors</description>
 
   <author email="dekent@gatech.edu">David Kent</author>

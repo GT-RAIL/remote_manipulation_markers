@@ -2,8 +2,8 @@
 Changelog for package remote_manipulation_markers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+1.0.1 (2017-01-11)
+------------------
 * Message generation dependencies
 * Contributors: David Kent
 
