@@ -18,39 +18,39 @@ visualization_msgs::InteractiveMarker Common::makeGripperMarker(geometry_msgs::P
   visualization_msgs::Marker gripperBase = createGripperMeshMarker(
       -0.055, 0, 0,
       -0.707, 0, 0, 0.707,
-      "package://robotiq_85_description/meshes/visual/robotiq_85_base_link.dae");
+      "package://remote_manipulation_markers/meshes/visual/robotiq_85_base_link.dae");
   visualization_msgs::Marker gripperLeftKnuckle = createGripperMeshMarker(
       -0.001, 0, -0.031,
       0.707, 0, 0, 0.707,
-      "package://robotiq_85_description/meshes/visual/robotiq_85_knuckle_link.dae");
+      "package://remote_manipulation_markers/meshes/visual/robotiq_85_knuckle_link.dae");
   visualization_msgs::Marker gripperRightKnuckle = createGripperMeshMarker(
       -0.001, 0, 0.031,
       -0.707, 0, 0, 0.707,
-      "package://robotiq_85_description/meshes/visual/robotiq_85_knuckle_link.dae");
+      "package://remote_manipulation_markers/meshes/visual/robotiq_85_knuckle_link.dae");
   visualization_msgs::Marker gripperLeftFinger = createGripperMeshMarker(
       -0.005, 0, -0.062,
       0.707, 0, 0, 0.707,
-      "package://robotiq_85_description/meshes/visual/robotiq_85_finger_link.dae");
+      "package://remote_manipulation_markers/meshes/visual/robotiq_85_finger_link.dae");
   visualization_msgs::Marker gripperRightFinger = createGripperMeshMarker(
       -0.005, 0, 0.062,
       -0.707, 0, 0, 0.707,
-      "package://robotiq_85_description/meshes/visual/robotiq_85_finger_link.dae");
+      "package://remote_manipulation_markers/meshes/visual/robotiq_85_finger_link.dae");
   visualization_msgs::Marker gripperLeftInnerKnuckle = createGripperMeshMarker(
       0.006, 0, -0.013,
       0.707, 0, 0, 0.707,
-      "package://robotiq_85_description/meshes/visual/robotiq_85_inner_knuckle_link.dae");
+      "package://remote_manipulation_markers/meshes/visual/robotiq_85_inner_knuckle_link.dae");
   visualization_msgs::Marker gripperRightInnerKnuckle = createGripperMeshMarker(
       0.006, 0, 0.013,
       -0.707, 0, 0, 0.707,
-      "package://robotiq_85_description/meshes/visual/robotiq_85_inner_knuckle_link.dae");
+      "package://remote_manipulation_markers/meshes/visual/robotiq_85_inner_knuckle_link.dae");
   visualization_msgs::Marker gripperLeftFingerTip = createGripperMeshMarker(
       0.049, 0, -0.05,
       0.707, 0, 0, 0.707,
-      "package://robotiq_85_description/meshes/visual/robotiq_85_finger_tip_link.dae");
+      "package://remote_manipulation_markers/meshes/visual/robotiq_85_finger_tip_link.dae");
   visualization_msgs::Marker gripperRightFingerTip = createGripperMeshMarker(
       0.049, 0, 0.05,
       -0.707, 0, 0, 0.707,
-      "package://robotiq_85_description/meshes/visual/robotiq_85_finger_tip_link.dae");
+      "package://remote_manipulation_markers/meshes/visual/robotiq_85_finger_tip_link.dae");
 
   visualization_msgs::InteractiveMarkerControl gripperControl;
   gripperControl.markers.push_back(gripperBase);
