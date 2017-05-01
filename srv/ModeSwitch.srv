@@ -1,0 +1,8 @@
+int8 VIEW=0
+int8 REFINE_POINT=1
+int8 REFINE_APPROACH_ANGLE=2
+int8 REFINE_WRIST=3
+
+int8 mode                   # mode to activate
+---
+bool success                # indicates if mode could not be activated (e.g. no grasps to refine)

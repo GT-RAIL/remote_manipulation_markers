@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_srvs
+  tf2_ros
   visualization_msgs
 )
 
@@ -26,6 +27,7 @@ add_service_files(
   FILES
   CreateSphere.srv
   CycleGrasps.srv
+  ModeSwitch.srv
 )
 
 add_action_files(
@@ -64,32 +66,29 @@ add_executable(free_positioning src/FreePositioning.cpp src/Common.cpp)
 add_executable(constrained_positioning src/ConstrainedPositioning.cpp src/Common.cpp)
 add_executable(gripper_marker_vis src/GripperMarkerVis.cpp src/Common.cpp)
 add_executable(point_and_click src/PointAndClick.cpp src/PointAndClick.cpp src/Common.cpp)
+add_executable(click_and_refine src/ClickAndRefine.cpp src/Common.cpp src/RefinablePose.cpp)
+add_executable(test_click_and_refine src/TestClickAndRefine.cpp)
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(free_positioning
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(constrained_positioning
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(gripper_marker_vis
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(point_and_click
-  ${catkin_LIBRARIES}
-  )
+target_link_libraries(free_positioning ${catkin_LIBRARIES})
+target_link_libraries(constrained_positioning ${catkin_LIBRARIES})
+target_link_libraries(gripper_marker_vis ${catkin_LIBRARIES})
+target_link_libraries(point_and_click ${catkin_LIBRARIES})
+target_link_libraries(click_and_refine ${catkin_LIBRARIES})
+target_link_libraries(test_click_and_refine ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the executable/library
 add_dependencies(free_positioning ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
 add_dependencies(constrained_positioning ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
 add_dependencies(point_and_click ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
+add_dependencies(click_and_refine ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
 
 #############
 ## Install ##
 #############
 
 ## Mark executables and/or libraries for installation
-install(TARGETS free_positioning constrained_positioning gripper_marker_vis point_and_click
+install(TARGETS free_positioning constrained_positioning gripper_marker_vis point_and_click click_and_refine test_click_and_refine
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 

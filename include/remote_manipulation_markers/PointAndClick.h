@@ -52,7 +52,6 @@ private:
 
   //services
   ros::ServiceServer cycleGraspsServer;
-  ros::ServiceServer executeGraspServer;
 
   boost::recursive_mutex graspsMutex;
   boost::shared_ptr<interactive_markers::InteractiveMarkerServer> imServer;
