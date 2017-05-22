@@ -3,12 +3,14 @@
 using namespace std;
 
 ClickAndRefine::ClickAndRefine() :
-    pnh("~"), specifiedGraspServer(pnh, "execute_grasp", boost::bind(&ClickAndRefine::executeGraspCallback, this, _1), false)
+    pnh("~"), specifiedGraspServer(pnh, "execute", boost::bind(&ClickAndRefine::executeCallback, this, _1), false)
 {
   //read in parameters
   string graspTopic;
+  string placeTopic;
   string calculatedPosesTopic;
   pnh.param<string>("grasp_topic", graspTopic, "grasp");
+  pnh.param<string>("place_topic", placeTopic, "place");
   pnh.param<string>("calculated_poses_topic", calculatedPosesTopic, "grasp_sampler/sampled_grasps");
 
   //messages
@@ -17,9 +19,11 @@ ClickAndRefine::ClickAndRefine() :
   //services
   cycleGraspsServer = pnh.advertiseService("cycle_grasps", &ClickAndRefine::cycleGraspsCallback, this);
   modeSwitchServer = pnh.advertiseService("switch_mode", &ClickAndRefine::switchModeCallback, this);
+  clearPosesServer = pnh.advertiseService("clear", &ClickAndRefine::clearPosesCallback, this);
 
   //actionlib
   graspClient = new actionlib::SimpleActionClient<rail_manipulation_msgs::PickupAction>(graspTopic);
+  placeClient = new actionlib::SimpleActionClient<rail_manipulation_msgs::StoreAction>(placeTopic);
 
   imServer.reset( new interactive_markers::InteractiveMarkerServer("grasp_setter", "grasp_setter_server", false));
   ros::Duration(0.1).sleep();
@@ -35,6 +39,19 @@ ClickAndRefine::ClickAndRefine() :
 ClickAndRefine::~ClickAndRefine()
 {
   delete graspClient;
+}
+
+bool ClickAndRefine::clearPosesCallback(std_srvs::Empty::Request &req, std_srvs::Empty::Response &res)
+{
+  graspList.poses.clear();
+  poses.clear();
+  graspsReceived = false;
+  graspIndex = 0;
+
+  imServer->empty();
+  imServer->applyChanges();
+
+  return true;
 }
 
 void ClickAndRefine::graspsCallback(const geometry_msgs::PoseArray &grasps)
@@ -182,47 +199,66 @@ void ClickAndRefine::updateMarker()
   imServer->applyChanges();
 }
 
-void ClickAndRefine::executeGraspCallback(const remote_manipulation_markers::SpecifiedGraspGoalConstPtr &goal)
+void ClickAndRefine::executeCallback(const remote_manipulation_markers::SpecifiedPoseGoalConstPtr &goal)
 {
   //TODO: execute a grasp at the poses[graspIndex].wristAdjustment in frame "displayed_grasp_angle_frame"
   //TODO: Just needs testing...
 
-  remote_manipulation_markers::SpecifiedGraspResult result;
-  remote_manipulation_markers::SpecifiedGraspFeedback feedback;
+  remote_manipulation_markers::SpecifiedPoseResult result;
+  remote_manipulation_markers::SpecifiedPoseFeedback feedback;
 
-  feedback.message = "The robot is attempting to move to your specified grasp.";
-  specifiedGraspServer.publishFeedback(feedback);
-
-  /*
-  tf::Transform graspTransform;
-  graspTransform.setOrigin(tf::Vector3(graspList.poses[graspIndex].position.x, graspList.poses[graspIndex].position.y, graspList.poses[graspIndex].position.z));
-  graspTransform.setRotation(tf::Quaternion(graspList.poses[graspIndex].orientation.x, graspList.poses[graspIndex].orientation.y, graspList.poses[graspIndex].orientation.z, graspList.poses[graspIndex].orientation.w));
-  ros::Time now = ros::Time::now();
-  tfBroadcaster.sendTransform(tf::StampedTransform(graspTransform, now, graspList.header.frame_id, "selected_grasp_frame"));
-  tfListener.waitForTransform("selected_grasp_frame", graspList.header.frame_id, now, ros::Duration(5.0));
-  */
-
-  rail_manipulation_msgs::PickupGoal graspGoal;
-  graspGoal.pose.header.frame_id = "displayed_grasp_angle_frame";
-  graspGoal.pose.pose.position.x = poses[graspIndex].getDepth() - goal->depthOffset;
-  graspGoal.pose.pose.orientation.w = 1.0;
-  graspGoal.lift = false;
-  graspGoal.verify = false;
-  graspClient->sendGoal(graspGoal);
-  graspClient->waitForResult(ros::Duration(30.0));
-  rail_manipulation_msgs::PickupResultConstPtr graspResult = graspClient->getResult();
-  result.success = graspResult->success;
-  result.executionSuccess = graspResult->executionSuccess;
-  if (!graspResult->executionSuccess)
+  if (goal->action == remote_manipulation_markers::SpecifiedPoseGoal::GRASP)
   {
-    ROS_INFO("Grasp failed!");
-    feedback.message = "The robot failed to plan to your selected grasp.";
+    feedback.message = "The robot is attempting to move to your grasp position...";
+    specifiedGraspServer.publishFeedback(feedback);
+
+    rail_manipulation_msgs::PickupGoal graspGoal;
+    graspGoal.pose.header.frame_id = "displayed_grasp_angle_frame";
+    graspGoal.pose.pose.position.x = poses[graspIndex].getDepth();
+    graspGoal.pose.pose.orientation.w = 1.0;
+    graspGoal.lift = false;
+    graspGoal.verify = false;
+    graspClient->sendGoal(graspGoal);
+    graspClient->waitForResult(ros::Duration(30.0));
+    rail_manipulation_msgs::PickupResultConstPtr graspResult = graspClient->getResult();
+    result.success = graspResult->success;
+    result.executionSuccess = graspResult->executionSuccess;
+    if (!graspResult->executionSuccess)
+    {
+      ROS_INFO("Grasp failed!");
+      feedback.message = "The robot failed to plan to your selected grasp.";
+    }
+    else
+    {
+      ROS_INFO("Grasp succeeded.");
+      feedback.message = "Grasp successful!";
+    }
   }
-  else
+  else if (goal->action == remote_manipulation_markers::SpecifiedPoseGoal::PLACE)
   {
-    ROS_INFO("Grasp succeeded.");
-    feedback.message = "Grasp successful!";
+    feedback.message = "The robot is attempting to move to your place position...";
+    specifiedGraspServer.publishFeedback(feedback);
+
+    rail_manipulation_msgs::StoreGoal placeGoal;
+    placeGoal.store_pose.header.frame_id = "displayed_grasp_angle_frame";
+    placeGoal.store_pose.pose.position.x = poses[graspIndex].getDepth();
+    placeGoal.store_pose.pose.orientation.w = 1.0;
+    placeClient->sendGoal(placeGoal);
+    placeClient->waitForResult(ros::Duration(30.0));
+    rail_manipulation_msgs::StoreResultConstPtr placeResult = placeClient->getResult();
+    result.success = placeResult->success;
+    if (!placeResult->success)
+    {
+      ROS_INFO("Place failed!");
+      feedback.message = "The robot failed place action at your specified location.";
+    }
+    else
+    {
+      ROS_INFO("Place succeeded.");
+      feedback.message = "Place successful!";
+    }
   }
+
   specifiedGraspServer.publishFeedback(feedback);
   specifiedGraspServer.setSucceeded(result);
 }

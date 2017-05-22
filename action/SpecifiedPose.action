@@ -1,0 +1,14 @@
+# Define the goal
+
+# valid actions
+uint8 GRASP=0
+uint8 PLACE=1
+
+uint8 action  # Action that the arm should take
+---
+# Define the result
+bool executionSuccess   # True if the arm could successfully complete motion planning
+bool success            # True if the object is verified to be in the gripper after pickup
+---
+# Define a feedback message
+string message         # Feedback message
