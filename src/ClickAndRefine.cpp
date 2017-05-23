@@ -25,7 +25,7 @@ ClickAndRefine::ClickAndRefine() :
   graspClient = new actionlib::SimpleActionClient<rail_manipulation_msgs::PickupAction>(graspTopic);
   placeClient = new actionlib::SimpleActionClient<rail_manipulation_msgs::StoreAction>(placeTopic);
 
-  imServer.reset( new interactive_markers::InteractiveMarkerServer("grasp_setter", "grasp_setter_server", false));
+  imServer.reset( new interactive_markers::InteractiveMarkerServer("click_and_refine", "click_and_refine_server", false));
   ros::Duration(0.1).sleep();
   imServer->applyChanges();
 
@@ -58,6 +58,18 @@ void ClickAndRefine::graspsCallback(const geometry_msgs::PoseArray &grasps)
 {
   ROS_INFO("Receiving new grasps...");
   boost::recursive_mutex::scoped_lock lock(graspsMutex);
+
+  if (grasps.poses.empty())
+  {
+    graspList.poses.clear();
+    poses.clear();
+    graspsReceived = false;
+    graspIndex = 0;
+
+    imServer->empty();
+    imServer->applyChanges();
+    return;
+  }
 
   graspList = grasps;
   poses.clear();
