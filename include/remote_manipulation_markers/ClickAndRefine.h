@@ -17,6 +17,7 @@
 #include <remote_manipulation_markers/RefinablePose.h>
 #include <remote_manipulation_markers/SpecifiedPoseAction.h>
 #include <std_srvs/Empty.h>
+#include <tf/transform_listener.h>
 #include <tf2_ros/transform_broadcaster.h>
 
 class ClickAndRefine
@@ -103,8 +104,10 @@ private:
   geometry_msgs::TransformStamped graspPointTransform;
   geometry_msgs::TransformStamped graspAngleTransform;
 
+  tf::TransformListener tfListener;
   tf2_ros::TransformBroadcaster tfBroadcaster;
 
+  std::string globalFrame;
   bool graspsReceived;
   int graspIndex;
   int mode;

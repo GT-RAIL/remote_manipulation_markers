@@ -12,6 +12,7 @@ ClickAndRefine::ClickAndRefine() :
   pnh.param<string>("grasp_topic", graspTopic, "grasp");
   pnh.param<string>("place_topic", placeTopic, "place");
   pnh.param<string>("calculated_poses_topic", calculatedPosesTopic, "grasp_sampler/sampled_grasps");
+  pnh.param<string>("global_frame", globalFrame, "base_link");
 
   //messages
   graspsSubscriber = n.subscribe(calculatedPosesTopic, 1, &ClickAndRefine::graspsCallback, this);
@@ -48,7 +49,7 @@ bool ClickAndRefine::clearPosesCallback(std_srvs::Empty::Request &req, std_srvs:
   graspsReceived = false;
   graspIndex = 0;
 
-  imServer->empty();
+  imServer->clear();
   imServer->applyChanges();
 
   return true;
@@ -66,7 +67,7 @@ void ClickAndRefine::graspsCallback(const geometry_msgs::PoseArray &grasps)
     graspsReceived = false;
     graspIndex = 0;
 
-    imServer->empty();
+    imServer->clear();
     imServer->applyChanges();
     return;
   }
@@ -76,11 +77,16 @@ void ClickAndRefine::graspsCallback(const geometry_msgs::PoseArray &grasps)
   poses.resize(graspList.poses.size());
   for (unsigned int i = 0; i < graspList.poses.size(); i ++)
   {
-    geometry_msgs::PoseStamped stampedPose;
+    geometry_msgs::PoseStamped stampedPose, transformedPose;
     stampedPose.header.frame_id = graspList.header.frame_id;
-    stampedPose.header.stamp = ros::Time::now();
+    stampedPose.header.stamp = ros::Time(0);
     stampedPose.pose = graspList.poses[i];
-    RefinablePose newPose(stampedPose, -0.085);
+
+    transformedPose.header.frame_id = globalFrame;
+    transformedPose.header.stamp = ros::Time(0);
+    tfListener.transformPose(globalFrame, stampedPose, transformedPose);
+
+    RefinablePose newPose(transformedPose, -0.085);
     poses[i] = newPose;
   }
   graspIndex = 0;
@@ -196,7 +202,7 @@ void ClickAndRefine::updateMarker()
   visualization_msgs::InteractiveMarker gripperMarker;
   geometry_msgs::PoseStamped gripperMarkerPose;
   gripperMarkerPose.header.frame_id = "displayed_grasp_angle_frame";
-  gripperMarkerPose.header.stamp = updateTime;
+  gripperMarkerPose.header.stamp = ros::Time(0);
   gripperMarkerPose.pose = poses[graspIndex].wristAdjustment;
   gripperMarkerPose.pose.orientation.w = 1.0;
   if (imServer->get("gripper", gripperMarker))
@@ -213,11 +219,20 @@ void ClickAndRefine::updateMarker()
 
 void ClickAndRefine::executeCallback(const remote_manipulation_markers::SpecifiedPoseGoalConstPtr &goal)
 {
-  //TODO: execute a grasp at the poses[graspIndex].wristAdjustment in frame "displayed_grasp_angle_frame"
-  //TODO: Just needs testing...
-
   remote_manipulation_markers::SpecifiedPoseResult result;
   remote_manipulation_markers::SpecifiedPoseFeedback feedback;
+
+  if (!graspsReceived)
+  {
+    feedback.message = "No grasp to execute!";
+    specifiedGraspServer.publishFeedback(feedback);
+
+    result.executionSuccess = false;
+    result.success = false;
+
+    specifiedGraspServer.setSucceeded(result);
+    return;
+  }
 
   if (goal->action == remote_manipulation_markers::SpecifiedPoseGoal::GRASP)
   {
@@ -226,7 +241,7 @@ void ClickAndRefine::executeCallback(const remote_manipulation_markers::Specifie
 
     rail_manipulation_msgs::PickupGoal graspGoal;
     graspGoal.pose.header.frame_id = "displayed_grasp_angle_frame";
-    graspGoal.pose.pose.position.x = poses[graspIndex].getDepth();
+    graspGoal.pose.pose.position.x = poses[graspIndex].getDepth() + 0.085;
     graspGoal.pose.pose.orientation.w = 1.0;
     graspGoal.lift = false;
     graspGoal.verify = false;
@@ -279,6 +294,13 @@ bool ClickAndRefine::cycleGraspsCallback(remote_manipulation_markers::CycleGrasp
 {
   boost::recursive_mutex::scoped_lock lock(graspsMutex);
 
+  if (!graspsReceived)
+  {
+    ROS_INFO("No grasps to cycle through!");
+
+    return false;
+  }
+
   if (mode == remote_manipulation_markers::ModeSwitch::Request::VIEW)
   {
     if (req.forward)
@@ -299,6 +321,8 @@ bool ClickAndRefine::cycleGraspsCallback(remote_manipulation_markers::CycleGrasp
 
   res.grasp = poses[graspIndex].refinedPose;
   res.index = graspIndex;
+
+  return true;
 }
 
 bool ClickAndRefine::switchModeCallback(remote_manipulation_markers::ModeSwitch::Request &req, remote_manipulation_markers::ModeSwitch::Response &res)
@@ -460,7 +484,7 @@ void ClickAndRefine::addRefineMarkers()
         approachAngleYaw.interaction_mode = visualization_msgs::InteractiveMarkerControl::ROTATE_AXIS;
 
         visualization_msgs::Marker pitchMarkerLeft;
-        pitchMarkerLeft.header.frame_id = "displayed_grasp_angle_frame";
+        //pitchMarkerLeft.header.frame_id = "displayed_grasp_angle_frame";
         pitchMarkerLeft.ns = "grasp_angle_pitch";
         pitchMarkerLeft.id = 1;
         pitchMarkerLeft.points.resize(2);
@@ -486,7 +510,7 @@ void ClickAndRefine::addRefineMarkers()
         approachAnglePitch.markers.push_back(pitchMarkerRight);
 
         visualization_msgs::Marker yawMarkerLeft;
-        yawMarkerLeft.header.frame_id = "displayed_grasp_angle_frame";
+        //yawMarkerLeft.header.frame_id = "displayed_grasp_angle_frame";
         yawMarkerLeft.ns = "grasp_angle_yaw";
         yawMarkerLeft.id = 1;
         yawMarkerLeft.points.resize(2);
@@ -557,7 +581,7 @@ void ClickAndRefine::setWristRefinement(const visualization_msgs::InteractiveMar
 
   ros::Time updateTime = ros::Time::now();
 
-  poses[graspIndex].refinedPose.header.stamp = updateTime;
+  poses[graspIndex].refinedPose.header.stamp = ros::Time(0);
   //ROS_INFO("Feedback pose header: %s", feedback->header.frame_id.c_str());
   poses[graspIndex].wristAdjustment = feedback->pose;
 }
@@ -570,7 +594,7 @@ void ClickAndRefine::setApproachAngle(const visualization_msgs::InteractiveMarke
   ros::Time updateTime = ros::Time::now();
 
   //Update stored refinedPose
-  poses[graspIndex].refinedPose.header.stamp = updateTime;
+  poses[graspIndex].refinedPose.header.stamp = ros::Time(0);
   poses[graspIndex].refinedPose.pose.orientation = feedback->pose.orientation;
 
   //Update grasp transform
@@ -588,7 +612,7 @@ void ClickAndRefine::translateGraspPoint(const visualization_msgs::InteractiveMa
   ros::Time updateTime = ros::Time::now();
 
   //Update stored refinedPose
-  poses[graspIndex].refinedPose.header.stamp = updateTime;
+  poses[graspIndex].refinedPose.header.stamp = ros::Time(0);
   poses[graspIndex].refinedPose.pose.position = feedback->pose.position;
 
   //Update grasp transform
