@@ -9,13 +9,16 @@ ClickAndRefine::ClickAndRefine() :
   string graspTopic;
   string placeTopic;
   string calculatedPosesTopic;
+  string calculatedPlaceTopic;
   pnh.param<string>("grasp_topic", graspTopic, "grasp");
   pnh.param<string>("place_topic", placeTopic, "place");
   pnh.param<string>("calculated_poses_topic", calculatedPosesTopic, "grasp_sampler/sampled_grasps");
+  pnh.param<string>("calculated_place_topic", calculatedPlaceTopic, "place_sampler/sampled_poses");
   pnh.param<string>("global_frame", globalFrame, "base_link");
 
   //messages
   graspsSubscriber = n.subscribe(calculatedPosesTopic, 1, &ClickAndRefine::graspsCallback, this);
+  placeSubscriber = n.subscribe(calculatedPlaceTopic, 1, &ClickAndRefine::graspsCallback, this);
 
   //services
   cycleGraspsServer = pnh.advertiseService("cycle_grasps", &ClickAndRefine::cycleGraspsCallback, this);

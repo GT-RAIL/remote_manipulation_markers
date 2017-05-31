@@ -78,6 +78,7 @@ private:
 
   //topics
   ros::Subscriber graspsSubscriber;
+  ros::Subscriber placeSubscriber;
   ros::Publisher markerPosePublisher;
 
   //services
