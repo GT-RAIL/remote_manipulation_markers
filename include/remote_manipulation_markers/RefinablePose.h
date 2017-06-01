@@ -19,6 +19,8 @@ public:
 
   double getDepth();
 
+  geometry_msgs::Quaternion getWristAngle();
+
   geometry_msgs::PoseStamped refinedPose;
   geometry_msgs::Pose wristAdjustment;
 

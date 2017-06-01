@@ -245,7 +245,8 @@ void ClickAndRefine::executeCallback(const remote_manipulation_markers::Specifie
     rail_manipulation_msgs::PickupGoal graspGoal;
     graspGoal.pose.header.frame_id = "displayed_grasp_angle_frame";
     graspGoal.pose.pose.position.x = poses[graspIndex].getDepth() + 0.085;
-    graspGoal.pose.pose.orientation.w = 1.0;
+    //graspGoal.pose.pose.orientation.w = 1.0;
+    graspGoal.pose.pose.orientation = poses[graspIndex].getWristAngle();
     graspGoal.lift = false;
     graspGoal.verify = false;
     graspClient->sendGoal(graspGoal);
@@ -266,13 +267,16 @@ void ClickAndRefine::executeCallback(const remote_manipulation_markers::Specifie
   }
   else if (goal->action == remote_manipulation_markers::SpecifiedPoseGoal::PLACE)
   {
+    ROS_INFO("Click and refine place called!");
+
     feedback.message = "The robot is attempting to move to your place position...";
     specifiedGraspServer.publishFeedback(feedback);
 
     rail_manipulation_msgs::StoreGoal placeGoal;
     placeGoal.store_pose.header.frame_id = "displayed_grasp_angle_frame";
-    placeGoal.store_pose.pose.position.x = poses[graspIndex].getDepth();
-    placeGoal.store_pose.pose.orientation.w = 1.0;
+    placeGoal.store_pose.pose.position.x = poses[graspIndex].getDepth() + 0.085;
+    //placeGoal.store_pose.pose.orientation.w = 1.0;
+    placeGoal.store_pose.pose.orientation = poses[graspIndex].getWristAngle();
     placeClient->sendGoal(placeGoal);
     placeClient->waitForResult(ros::Duration(30.0));
     rail_manipulation_msgs::StoreResultConstPtr placeResult = placeClient->getResult();

@@ -39,3 +39,8 @@ double RefinablePose::getDepth()
 {
   return wristAdjustment.position.x;
 }
+
+geometry_msgs::Quaternion RefinablePose::getWristAngle()
+{
+  return wristAdjustment.orientation;
+}
