@@ -20,6 +20,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_srvs
   tf
   tf_conversions
+  tf2_bullet
   tf2_ros
   visualization_msgs
 )
