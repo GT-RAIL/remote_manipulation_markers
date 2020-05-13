@@ -1,0 +1,55 @@
+<launch>
+    <!-- point cloud topic -->
+    <arg name="cloud_topic" default="camera/depth_registered/points" />
+
+    <!-- clickable point cloud parameters -->
+    <arg name="roi_radius" default="0.15" />
+
+    <!-- grasp sampling and ranking parameters -->
+    <arg name="remove_table" default="true" />
+    <arg name="neighborhood_radius" default="0.01" />
+    <arg name="orientation_threshold" default="0.1" />
+    <arg name="cluster_size" default="5" />
+    <arg name="local_window_size" default="0.01" />
+    <arg name="num_samples" default="2000" />
+
+    <!-- gripper parameters for grasp sampling; note: defaults are measurements of the robotiq-85 gripper -->
+    <arg name="finger_width" default="0.014" />
+    <arg name="hand_outer_diameter" default="0.212" />
+    <arg name="hand_depth" default="0.04" />
+    <arg name="init_bite" default="0.005" />
+    <arg name="hand_height" default="0.037" />
+
+    <!-- point-and-click marker server parameters -->
+    <arg name="grasp_topic" default="grasp" />
+    <arg name="calculated_poses_topic" default="point_and_click_demo/sampled_grasps" />
+
+    <node pkg="remote_manipulation_markers" type="clickable_point_cloud" name="clickable_point_cloud" output="screen">
+        <param name="cloud_topic" value="$(arg cloud_topic)" />
+    </node>
+
+    <node pkg="remote_manipulation_markers" type="point_and_click_demo" name="point_and_click_demo" output="screen">
+        <param name="roi_radius" value="$(arg roi_radius)" />
+    </node>
+
+    <include file="$(find rail_grasp_calculation_nodes)/launch/find_grasps.launch">
+        <arg name="remove_table" value="$(arg remove_table)" />
+        <arg name="neighborhood_radius" value="$(arg neighborhood_radius)" />
+        <arg name="orientation_threshold" value="$(arg orientation_threshold)" />
+        <arg name="cluster_size" value="$(arg cluster_size)" />
+        <arg name="local_window_size" value="$(arg local_window_size)" />
+        <arg name="num_samples" value="$(arg num_samples)" />
+
+        <arg name="finger_width" value="$(arg finger_width)" />
+        <arg name="hand_outer_diameter" value="$(arg hand_outer_diameter)" />
+        <arg name="hand_depth" value="$(arg hand_depth)" />
+        <arg name="init_bite" value="$(arg init_bite)" />
+        <arg name="hand_height" value="$(arg hand_height)" />
+    </include>
+
+    <include file="$(find remote_manipulation_markers)/launch/point_and_click.launch">
+        <arg name="calculated_poses_topic" value="$(arg calculated_poses_topic)" />
+        <arg name="grasp_topic" value="$(arg grasp_topic)" />
+    </include>
+
+</launch>

@@ -11,10 +11,15 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   interactive_markers
   message_generation
+  pcl_conversions
+  pcl_ros
+  rail_grasp_calculation_msgs
   rail_manipulation_msgs
   roscpp
   sensor_msgs
   std_srvs
+  tf
+  tf_conversions
   tf2_ros
   visualization_msgs
 )
@@ -22,6 +27,11 @@ find_package(catkin REQUIRED COMPONENTS
 ################################################
 ## Declare ROS messages, services and actions ##
 ################################################
+
+add_message_files(
+  FILES
+  GenerateGrasps.msg
+)
 
 add_service_files(
   FILES
@@ -41,6 +51,7 @@ generate_messages(
   DEPENDENCIES
   actionlib_msgs
   geometry_msgs
+  sensor_msgs
 )
 
 ###################################################
@@ -69,6 +80,8 @@ add_executable(gripper_marker_vis src/GripperMarkerVis.cpp src/Common.cpp)
 add_executable(point_and_click src/PointAndClick.cpp src/PointAndClick.cpp src/Common.cpp)
 add_executable(click_and_refine src/ClickAndRefine.cpp src/Common.cpp src/RefinablePose.cpp)
 add_executable(test_click_and_refine src/TestClickAndRefine.cpp)
+add_executable(clickable_point_cloud src/ClickablePointCloud.cpp src/point_cloud_manipulation.cpp)
+add_executable(point_and_click_demo src/PointAndClickDemo.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(free_positioning ${catkin_LIBRARIES})
@@ -77,19 +90,24 @@ target_link_libraries(gripper_marker_vis ${catkin_LIBRARIES})
 target_link_libraries(point_and_click ${catkin_LIBRARIES})
 target_link_libraries(click_and_refine ${catkin_LIBRARIES})
 target_link_libraries(test_click_and_refine ${catkin_LIBRARIES})
+target_link_libraries(clickable_point_cloud ${catkin_LIBRARIES})
+target_link_libraries(point_and_click_demo ${catkin_LIBRARIES} ${EIGEN_INCLUDE_DIRS})
 
 ## Add cmake target dependencies of the executable/library
 add_dependencies(free_positioning ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
 add_dependencies(constrained_positioning ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
 add_dependencies(point_and_click ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
 add_dependencies(click_and_refine ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
+add_dependencies(clickable_point_cloud ${PROJECT_NAME}_generate_messages_cpp)
+add_dependencies(point_and_click_demo rail_manipulation_msgs_gencpp rail_grasp_calculation_msgs_gencpp
+        ${PROJECT_NAME}_generate_messages_cpp)
 
 #############
 ## Install ##
 #############
 
 ## Mark executables and/or libraries for installation
-install(TARGETS free_positioning constrained_positioning gripper_marker_vis point_and_click click_and_refine test_click_and_refine
+install(TARGETS free_positioning constrained_positioning gripper_marker_vis point_and_click click_and_refine test_click_and_refine clickable_point_cloud
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
