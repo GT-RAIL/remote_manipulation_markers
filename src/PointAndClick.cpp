@@ -51,6 +51,17 @@ void PointAndClick::updateMarker()
   pose.header.frame_id = graspList.header.frame_id;
   pose.pose = graspList.poses[graspIndex];
 
+  btTransform t_g(btQuaternion(pose.pose.orientation.x, pose.pose.orientation.y, pose.pose.orientation.z, pose.pose.orientation.w),
+                  btVector3(pose.pose.position.x, pose.pose.position.y, pose.pose.position.z));
+  btVector3 grasp_offset_point(-0.1, 0, 0);
+
+   // get grasp offset point in grasp frame
+  btVector3 offset = t_g*grasp_offset_point;
+
+  pose.pose.position.x = offset.x();
+  pose.pose.position.y = offset.y();
+  pose.pose.position.z = offset.z();
+
   visualization_msgs::InteractiveMarker gripperMarker;
   if (imServer->get("gripper", gripperMarker))
   {
