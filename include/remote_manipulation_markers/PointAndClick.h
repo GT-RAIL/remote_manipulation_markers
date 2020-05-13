@@ -14,6 +14,7 @@
 #include <remote_manipulation_markers/SpecifiedGraspAction.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
+#include <tf2_bullet/tf2_bullet.h>
 
 class PointAndClick
 {
