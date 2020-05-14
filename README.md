@@ -30,7 +30,7 @@ This package comes with a demo for the Point-and-Click interaction mode, using R
   1. To scroll through grasps, use the ROS service `/point_and_click/cycle_grasps`, callable from the command line with `$ rosservice call /point_and_click/cycle_grasps "forward: true"`
   1. This demo does not assume a hardware or robot control implementation for grasp execution, but it does provide an actionlib interface.  To execute a grasp, use the action client `/point_and_click/execute_grasp`, which assumes you have implemented the grasp execution action server for your hardware.
   
-To create your own Point-and-Click interface, use the `/clickable_point_cloud` and `/grasp_selector` interactive marker servers, the `/point_and_click/cycle_grasps` service, and the `/point_and_click/execute_grasp` action client to your preferred visualization environment, such as `rviz` panels or (Robot Web Tools)[http://robotwebtools.org/] visualizers.
+To create your own Point-and-Click interface, use the `/clickable_point_cloud` and `/grasp_selector` interactive marker servers, the `/point_and_click/cycle_grasps` service, and the `/point_and_click/execute_grasp` action client to your preferred visualization environment, such as `rviz` panels or [Robot Web Tools](http://robotwebtools.org/) visualizers.
 
 ## Documentation
 Full documentation is available on the ROS wiki [here](http://wiki.ros.org/remote_manipulation_markers).
