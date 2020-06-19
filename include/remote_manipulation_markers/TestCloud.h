@@ -3,11 +3,9 @@
 
 //ROS
 #include <ros/ros.h>
-#include <remote_manipulation_markers/GenerateGrasps.h>
 #include <boost/thread/mutex.hpp>
 #include <interactive_markers/interactive_marker_server.h>
 #include <pcl_ros/point_cloud.h>
-#include <remote_manipulation_markers/point_cloud_manipulation.h>
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud_conversion.h>
 #include <tf/transform_listener.h>
