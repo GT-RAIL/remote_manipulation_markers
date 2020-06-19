@@ -83,6 +83,7 @@ add_executable(click_and_refine src/ClickAndRefine.cpp src/Common.cpp src/Refina
 add_executable(test_click_and_refine src/TestClickAndRefine.cpp)
 add_executable(clickable_point_cloud src/ClickablePointCloud.cpp src/point_cloud_manipulation.cpp)
 add_executable(point_and_click_demo src/PointAndClickDemo.cpp)
+add_executable(test_cloud src/TestCloud.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(free_positioning ${catkin_LIBRARIES})
@@ -93,6 +94,7 @@ target_link_libraries(click_and_refine ${catkin_LIBRARIES})
 target_link_libraries(test_click_and_refine ${catkin_LIBRARIES})
 target_link_libraries(clickable_point_cloud ${catkin_LIBRARIES})
 target_link_libraries(point_and_click_demo ${catkin_LIBRARIES} ${EIGEN_INCLUDE_DIRS})
+target_link_libraries(test_cloud ${catkin_LIBRARIES})
 
 ## Add cmake target dependencies of the executable/library
 add_dependencies(free_positioning ${PROJECT_NAME}_generate_messages_cpp rail_manipulation_msgs_gencpp)
@@ -106,6 +108,7 @@ add_dependencies(point_and_click_demo rail_manipulation_msgs_gencpp rail_grasp_c
 #############
 ## Install ##
 #############
+
 
 ## Mark executables and/or libraries for installation
 install(TARGETS free_positioning constrained_positioning gripper_marker_vis point_and_click click_and_refine test_click_and_refine clickable_point_cloud
