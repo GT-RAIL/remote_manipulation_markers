@@ -25,6 +25,7 @@ TestCloud::TestCloud() :
   }
 
   *cloudPtr = myCloud;
+  cloudPtr->header.frame_id = "cloud_frame";
 
   ROS_INFO("Point cloud initialized.");
 }
