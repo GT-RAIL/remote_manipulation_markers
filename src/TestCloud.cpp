@@ -12,15 +12,15 @@ TestCloud::TestCloud() :
   pcl::PointCloud<pcl::PointXYZRGB> myCloud;
 
   // fill cloud with random points
-  for (int v=0; v<1000; ++v)
+  for (int v=0; v<5000; ++v)
   {
     pcl::PointXYZRGB newPoint;
-    newPoint.x = (rand() * 0.4) / RAND_MAX;
-    newPoint.y = (rand() * 0.4) / RAND_MAX;
-    newPoint.z = (sin(v/20.0));
-    newPoint.r = 1.0;
-    newPoint.g = 1.0;
-    newPoint.b = 1.0;
+    newPoint.z = (rand() * 0.4) / RAND_MAX;
+    newPoint.y = (rand() * 0.6) / RAND_MAX - 0.3;
+    newPoint.x = 0.5 + 0.01*(sin(newPoint.z*150));
+    newPoint.r = 150.0;
+    newPoint.g = 150.0;
+    newPoint.b = 150.0;
     myCloud.points.push_back(newPoint);
   }
 

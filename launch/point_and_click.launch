@@ -1,6 +1,6 @@
 <launch>
   <arg name="grasp_topic" default="grasp" />
-  <arg name="calculated_poses_topic" default="grasp_sampler/sampled_grasps" />
+  <arg name="calculated_poses_topic" default="grasp" />
 
   <node pkg="remote_manipulation_markers" type="point_and_click" name="point_and_click">
     <param name="grasp_topic" value="$(arg grasp_topic)" />

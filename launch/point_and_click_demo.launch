@@ -21,7 +21,7 @@
     <arg name="hand_height" default="0.037" />
 
     <!-- point-and-click marker server parameters -->
-    <arg name="grasp_topic" default="grasp" />
+    <arg name="grasp_topic" default="sample_grasp_executor/execute_grasp" />
     <arg name="calculated_poses_topic" default="point_and_click_demo/sampled_grasps" />
 
     <node pkg="remote_manipulation_markers" type="clickable_point_cloud" name="clickable_point_cloud" output="screen">
